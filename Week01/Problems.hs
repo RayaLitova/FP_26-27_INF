@@ -103,9 +103,8 @@ sumFromIndex (_ : xs) n = sumFromIndex xs (n-1)
 -- Задача: Сума от индекс до индекс
 sumFromToIdx :: [Int] -> Int -> Int -> Int 
 sumFromToIdx [] _ _ = 0
-sumFromToIdx xs 0 0 = sum' xs
-sumFromToIdx xs 0 m = sumFromToIdx (reverse xs) (length xs - m - 1) 0 
-sumFromToIdx (_ : xs) n m = sumFromToIdx xs (n-1) m
+sumFromToIdx xs 0 m = sumFromIndex (reverse xs) (length xs - 1 - m)
+sumFromToIdx (_ : xs) n m = sumFromToIdx xs (n-1) (m-1)
 
 -- Задача 4: Да се напише функция, която приема списък от цели числа и прилага следните операции:
  -- Първото число се добавя към резултата до момента (Първоначално 0)
