@@ -14,6 +14,11 @@
 {-# HLINT ignore "Use infix" #-}
 
 -- curry and uncurry
+curry' :: ((a, b) -> c) -> a -> b -> c 
+curry' = undefined 
+
+uncurry' :: (a -> b -> c) -> (a, b) -> c
+uncurry' = undefined
 
 replicatePairs :: [(Int, a)] -> [[a]]
 replicatePairs = undefined 
