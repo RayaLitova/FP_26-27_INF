@@ -12,44 +12,61 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Eta reduce" #-}
 {-# HLINT ignore "Use infix" #-}
+{-# HLINT ignore "Use zipWith" #-}
+{-# HLINT ignore "Avoid lambda" #-}
+{-# HLINT ignore "Fuse foldr/map" #-}
 
 -- curry and uncurry
 curry' :: ((a, b) -> c) -> a -> b -> c 
-curry' = undefined 
+curry' f a b = f (a, b)  
 
 uncurry' :: (a -> b -> c) -> (a, b) -> c
-uncurry' = undefined
+uncurry' f (a, b) = f a b
 
 replicatePairs :: [(Int, a)] -> [[a]]
-replicatePairs = undefined 
+replicatePairs xs = map (uncurry replicate) xs 
 
 sumLists :: [Int] -> [Int] -> [Int]
-sumLists = undefined
+sumLists xs ys = map (uncurry (+)) $ zip xs ys
 
 filterPairs :: (a -> b -> Bool) -> [(a, b)] -> [(a, b)]
-filterPairs = undefined
+filterPairs p xs = foldr (\x acc -> if uncurry p x then x : acc else acc) [] xs
 
 zipWith' :: ((a, b) -> c) -> [a] -> [b] -> [c]
-zipWith' = undefined 
+zipWith' _ [] _ = [] 
+zipWith' _ _ [] = [] 
+zipWith' f xs ys =  map (\(b, i) -> (fs!!i) b) $ reverse bs
+    where 
+        bs = foldl (\acc x -> (x, snd (last acc) + 1) : acc) [(head ys, 0)] (tail ys)
+        fs = map (curry f) xs 
+
 
 --
 
 unzipWith :: (c -> (a, b)) -> [c] -> ([a], [b])
-unzipWith = undefined
-
-unfoldr' :: (b -> Maybe (a, b)) -> b -> [a]
-unfoldr' = undefined
+unzipWith f l = foldr (\(x, y) (xs, ys) -> (x : xs, y : ys)) ([], []) $ map f l
 
 -- Maybe
 filterMaybe :: (a -> Maybe b) -> [a] -> [b]
-filterMaybe = undefined
+filterMaybe p xs = foldr helper [] $ map p xs
+    where 
+        helper Nothing acc = acc 
+        helper (Just x) acc = x : acc
 
-foldMaybe :: (b -> a -> Maybe b) -> b -> [a] -> Maybe b
-foldMaybe = undefined
+unfoldr' :: (b -> Maybe (a, b)) -> b -> [a]
+unfoldr' f b = helper (f b)
+    where 
+        helper Nothing = []
+        helper (Just (x, y)) = x : helper (f y)
 
 
 -- Either
-mapLeft  :: (a -> c) -> Either a b -> Either c b
-mapLeft = undefined
-mapBoth  :: (a -> c) -> (b -> d) -> Either a b -> Either c d
+mapLeft  :: (a -> c) -> [Either a b] -> [Either c b]
+mapLeft f xs = map helper xs
+    where 
+        helper (Left a) = Left (f a)
+        helper (Right b) = Right b
+
+-- domashno rekursivno i s map
+mapBoth  :: (a -> c) -> (b -> d) -> [Either a b] -> [Either c d]
 mapBoth = undefined
