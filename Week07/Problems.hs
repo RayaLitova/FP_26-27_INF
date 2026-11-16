@@ -22,6 +22,7 @@
     -- []
     -- Maybe
     -- Either 
+
 -- fmap == <$> (but infix)
 -- Да се дефинира функция която приема число и Maybe Int. Функцията трябва да връща сумата на двете числа
 
@@ -32,10 +33,6 @@
 -- >>= (bind)
 -- Да се дефинира функцията safeDivide 
 -- Да се дефинира функция, която приема Maybe Int и две числа. Тя трябва последователно да приложи safeDivide с двете числа
-
-safeDivide :: Int -> Int -> Maybe Int
-safeDivide _ 0 = Nothing 
-safeDivide x y = Just $ div x y
 
 -- IO
 
