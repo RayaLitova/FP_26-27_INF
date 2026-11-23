@@ -25,28 +25,80 @@
 
 -- fmap == <$> (but infix)
 -- Да се дефинира функция която приема число и Maybe Int. Функцията трябва да връща сумата на двете числа
+functorSum :: Int -> Maybe Int -> Maybe Int 
+functorSum a b = fmap (+a) b
 
 -- <*> (apply)
 -- Да се дефинира функция, която приема Maybe (Int -> Int) и Maybe Int. Тя трябва да приложи функцията върху числото
+applyInt :: Maybe (Int -> Int) -> Maybe Int -> Maybe Int 
+applyInt f x = f <*> x
+
 -- Да се дефинира функция, която приема [Int -> Int] и [Int]. Тя трябва да приложи всяка функция върху всяко число
+applyAll :: [Int -> Int] -> [Int] -> [Int]
+applyAll fs xs = fs <*> xs
 
 -- >>= (bind)
 -- Да се дефинира функцията safeDivide 
+safeDivide :: Int -> Int -> Maybe Int 
+safeDivide _ 0 = Nothing
+safeDivide a b = Just $ div a b
+
 -- Да се дефинира функция, която приема Maybe Int и две числа. Тя трябва последователно да приложи safeDivide с двете числа
+bindSafeDivide :: Maybe Int -> Int -> Int -> Maybe Int 
+bindSafeDivide a b c = a >>= \x -> safeDivide x b >>= \y -> safeDivide y c
 
 -- IO
 
 -- Да се напише функция, която принтира "Hello world!" в терминала
+helloWorld :: IO ()
+helloWorld = print "Hello world"
+
 -- Да се напише функция, която чете стринг от терминала, слага му "!!!" в края и го принтира
+modString :: IO () 
+modString = do 
+    str <- getLine
+    print $ str ++ "!!!"
+
 -- Да се напише фунцкия, която чете число от терминала, добавя му 1 и го принтира
+addOne :: IO () 
+addOne = do
+    str <- getLine 
+    let a = read str 
+    print $ a + 1
 
--- Да се дефинира тип за приют за животни. Той може да бъде или работещ и да пази броя на животните, които приютява, или да е затворен
--- Да се имплементират fmap, <*> и >>= за приюта за животни
+data ValBox a = Box a | Empty
+    deriving Show
 
--- Да се напише функция, която чете от терминала число. Ако то е 0 - връща затворен приют, в противен случай запазва числото като брой на животните
+-- Да се имплементират fmap, <*> и >>=
+fmapValBox :: (a -> a) -> ValBox a -> ValBox a
+fmapValBox _ Empty = Empty
+fmapValBox f (Box a) = Box $ f a
 
--- В един град има множество приюти. Всяко животно започва от първия и слиза по дървото, докато намери приют със свободно място (всеки приют има максимално 10 места)
--- Създайте тип, който да представлява дърво от приюти за животни. 
--- Да се напише функция, която добавя нов приют към дървото
--- Да се напише функция, която чете приют от терминала и го добавя към подадено дърво
--- Да се напише функция, която връща първите n приюта от подадено дърво.
+(<!>) :: ValBox (a -> b) -> ValBox a -> ValBox b
+(<!>) Empty _ = Empty
+(<!>) _ Empty = Empty
+(<!>) (Box f) (Box a) = Box $ f a
+
+(<=>=>) :: ValBox a -> (a -> ValBox b) -> ValBox b 
+(<=>=>) Empty _ = Empty
+(<=>=>) (Box a) f = f a 
+
+readNum :: IO (Maybe Int) 
+readNum = do 
+    str <- getLine 
+    let x = read str 
+    if x == 0 then
+        return Nothing 
+    else 
+        return $ Just x 
+
+wordle :: String -> Int -> IO () 
+wordle word a = do 
+    str <- getLine 
+    if str == word then 
+        print "GJ"
+    else if a == 0 then
+        print "Loser :("
+    else do 
+        print $ map (\(x, i) -> if x == word !! i then '*' else if x `elem` word then '!' else '_') $ zip str [0..]
+        wordle word (a - 1)
